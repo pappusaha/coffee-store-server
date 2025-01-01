@@ -32,6 +32,7 @@ async function run() {
 //  here is mongoDB section 
 
 const coffeeCollection = client.db("coffeeDB").collection("coffee"); 
+  const userCollection=client.db('coffeeDB').collection('user')
 //  this is get section 
 app.get('/coffee', async (req, res) => {
     const cursor = coffeeCollection.find();
@@ -93,6 +94,40 @@ app.delete('/coffee/:id', async (req, res) => {
 
 })
 
+
+//  this is user Registration
+app.get('/user', async (req, res) => {
+  const cursor= userCollection.find()
+  const result= await cursor.toArray()
+  res.send(result)
+})
+// this is post section 
+app.post('/user', async (req, res) => {
+const newUser=req.body
+const result= await userCollection.insertOne(newUser)
+res.send(result)
+})
+
+app.patch('/user', async (req,res)=> {
+  const user=req.body
+  const filter={email : user.email }
+  const updateDoc = {
+    $set: {
+      lastLogin:user.lastLogin
+    },
+  }; 
+  const result=await userCollection.updateOne(filter,updateDoc)
+  res.send(result)
+})
+
+// this is delete section 
+
+app.delete('/user/:id',async (req, res) => {
+  const id=req.params.id
+  const query={_id : new ObjectId(id)}
+  const result= await userCollection.deleteOne(query)
+  res.send(result)
+})
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
